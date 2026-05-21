@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cloud Instance - Under Maintenance</title>
+
+  <!-- Tailwind CDN -->
+  https://cdn.tailwindcss.comscript>
+
+  <style>
+    /* Animated gradient background */
+    body {
+      background: linear-gradient(-45deg, #0f172a, #1e293b, #020617, #0c4a6e);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* Loader animation */
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.1);
+      border-left-color: #38bdf8;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Glow card effect */
+    .glow {
+      box-shadow: 0 0 20px rgba(56,189,248,0.4),
+                  0 0 40px rgba(14,165,233,0.2);
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen text-white">
+
+  <!-- Main Container -->
+  <div class="max-w-2xl w-full px-6">
+    
+    <!-- Card -->
+    <div class="bg-slate-900/70 backdrop-blur-lg rounded-2xl p-8 text-center glow border border-slate-700">
+
+      <!-- Title -->
+      <h1 class="text-4xl font-bold text-cyan-400 mb-4 tracking-wide">
+        ☁️ Cloud Instance
+      </h1>
+
+      <!-- Status Badge -->
+      <div id="statusBadge"
+           class="inline-block px-4 py-2 mb-6 rounded-full bg-yellow-500/20 text-yellow-400 text-sm font-semibold animate-pulse">
+        Under Development • Maintenance Mode
+      </div>
+
+      <!-- Loader -->
+      <div class="flex justify-center mb-6">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Description -->
+      <p class="text-gray-300 mb-6">
+        This cloud environment is currently undergoing upgrades and optimization.
+        Services will be restored shortly with improved performance and stability.
+      </p>
+
+      <!-- Cloud Info Panel -->
+      <div class="bg-slate-800 rounded-lg p-4 text-left text-sm font-mono">
+        <p><span class="text-cyan-400">Instance:</span> Active (Paused)</p>
+        <p><span class="text-cyan-400">Region:</span> Secure Cluster Zone</p>
+        <p><span class="text-cyan-400">Status:</span> Maintenance Pipeline Running</p>
+        <p><span class="text-cyan-400">Uptime:</span> Reinitializing...</p>
+      </div>
+
+      <!-- Contact -->
+      <div class="mt-6 text-red-400 text-sm font-semibold">
+        ⚠ Contact the owner of the Server ID:  
+        <br>
+        <span class="text-white font-mono">
+          GitBash rchand/192.168.9.1/233 Go Lang Terminal 5.31
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-xs text-gray-500 mt-6">
+      © Cloud Infrastructure System • Secure Node Environment
+    </p>
+
+  </div>
+
+  <!-- JS Animation -->
+  <script>
+    const badge = document.getElementById("statusBadge");
+
+    // Dynamic status text pulse
+    const states = [
+      "Under Development • Maintenance Mode",
+      "Applying Updates...",
+      "Optimizing Cloud Services...",
+      "Restarting Instance..."
+    ];
+
+    let i = 0;
+
+    setInterval(() => {
+      badge.innerText = states[i];
+      i = (i + 1) % states.length;
+    }, 2500);
+  </script>
+
+</body>
+</html>
