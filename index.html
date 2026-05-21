@@ -1,88 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cloud Maintenance Terminal</title>
-
-  <!-- ✅ Correct Tailwind CDN -->
-  https://cdn.tailwindcss.comscript>
+  <meta charset="UTF-8">
+  <title>Site Under Maintenance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    /* Terminal Blink Cursor */
-    .cursor::after {
-      content: "_";
-      animation: blink 1s infinite;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
     }
 
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0; }
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+
+    .loader {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .loader span {
+      width: 12px;
+      height: 12px;
+      margin: 5px;
+      border-radius: 50%;
+      background: #fff;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .loader span:nth-child(1) { animation-delay: -0.32s; }
+    .loader span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    #countdown {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-top: 10px;
+      letter-spacing: 1px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      opacity: 0.6;
     }
   </style>
 </head>
 
-<body class="bg-gray-50 font-sans text-gray-800">
+<body>
 
-  <!-- Header -->
-  <header class="bg-white border-b shadow-sm">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between">
-      <h1 class="text-xl font-semibold text-blue-600">Cloud Control Panel</h1>
-      <span class="text-sm text-gray-500">Prod Environment</span>
-    </div>
-  </header>
+  <div class="card">
+    <h1>We’ll Be Back</h1>
+    <p>Our website is currently under maintenance.<br>We’re working to improve your experience.</p>
 
-  <!-- Main -->
-  <main class="max-w-5xl mx-auto px-6 py-10">
-
-    <!-- Card -->
-    <div class="bg-white rounded-2xl shadow-lg border p-6">
-
-      <!-- Title -->
-      <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-semibold">☁️ Instance Maintenance</h2>
-        <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
-          Maintenance
-        </span>
-      </div>
-
-      <p class="text-gray-500 mt-2 mb-6">
-        Live terminal output showing deployment + maintenance activity.
-      </p>
-
-      <!-- ✅ GitBash Terminal -->
-      <div class="bg-black text-green-400 rounded-lg p-4 font-mono text-sm h-80 overflow-y-auto border">
-        
-        <div id="terminal"></div>
-
-      </div>
-
-      <!-- Contact -->
-      <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p class="text-red-700 text-sm font-medium">
-          ⚠ Contact the owner of the Server ID:
-        </p>
-        <p class="mt-2 font-mono text-sm text-gray-800">
-          GitBash rchand@192.168.9.1:/233 (Go Lang Terminal v5.31)
-        </p>
-      </div>
-
+    <div class="loader">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
 
-  </main>
+    <div id="countdown">Loading...</div>
 
-  <!-- ✅ JS for Terminal Simulation -->
+    <div class="footer">
+      © 2026 Your Company
+    </div>
+  </div>
+
   <script>
-    const terminal = document.getElementById("terminal");
+    // Set countdown (e.g., 4 hours from now)
+    const targetDate = new Date();
+    targetDate.setHours(targetDate.getHours() + 4);
 
-    const lines = [
-      "rchand@cloud-node:/233$ initializing instance...",
-      "Loading dependencies...",
-      "Connecting to cluster [192.168.9.1]...",
-      "✔ Network handshake complete",
-      "Starting Go Lang services...",
-      "Running version: v5.31",
-      "Applying security patches...",
-      "Optimizing cloud resources...",
-      "Restarting services...",
-      "⚠ Instance temporarily in maintenance mode",
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        document.getElementById("countdown").innerHTML = "✅ We're Live!";
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("countdown").innerHTML =
+        `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+
+</body>
+</html>
