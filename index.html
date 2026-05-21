@@ -3,138 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cloud Instance Maintenance</title>
+  <title>Cloud Maintenance Terminal</title>
 
-  <!-- Tailwind -->
+  <!-- ✅ Correct Tailwind CDN -->
   https://cdn.tailwindcss.comscript>
 
   <style>
-    /* Smooth loader */
-    .spinner {
-      border: 3px solid #e5e7eb;
-      border-top: 3px solid #2563eb;
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      animation: spin 1s linear infinite;
+    /* Terminal Blink Cursor */
+    .cursor::after {
+      content: "_";
+      animation: blink 1s infinite;
     }
 
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
     }
   </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-gray-50 font-sans text-gray-800">
 
   <!-- Header -->
   <header class="bg-white border-b shadow-sm">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between">
       <h1 class="text-xl font-semibold text-blue-600">Cloud Control Panel</h1>
-      <span class="text-sm text-gray-500">Environment: Production</span>
+      <span class="text-sm text-gray-500">Prod Environment</span>
     </div>
   </header>
 
   <!-- Main -->
-  <main class="max-w-4xl mx-auto px-6 py-12">
+  <main class="max-w-5xl mx-auto px-6 py-10">
 
     <!-- Card -->
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+    <div class="bg-white rounded-2xl shadow-lg border p-6">
 
       <!-- Title -->
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-semibold text-gray-900">
-          ☁️ Cloud Instance Status
-        </h2>
-
-        <span id="statusBadge"
-          class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-medium">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold">☁️ Instance Maintenance</h2>
+        <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm">
           Maintenance
         </span>
       </div>
 
-      <!-- Divider -->
-      <div class="my-6 border-t"></div>
+      <p class="text-gray-500 mt-2 mb-6">
+        Live terminal output showing deployment + maintenance activity.
+      </p>
 
-      <!-- Status Section -->
-      <div class="flex items-center gap-6">
-
-        <div class="spinner"></div>
-
-        <div>
-          <p class="text-lg font-medium text-gray-800">
-            Instance Under Development & Maintenance
-          </p>
-          <p class="text-sm text-gray-500">
-            Updates and optimizations are currently being applied. Services will resume soon.
-          </p>
-        </div>
-
-      </div>
-
-      <!-- Info Grid -->
-      <div class="grid grid-cols-2 gap-6 mt-8 text-sm">
-
-        <div class="bg-gray-50 rounded-lg p-4 border">
-          <p class="text-gray-500">Instance ID</p>
-          <p class="font-mono text-gray-800 mt-1">cloud-prod-01</p>
-        </div>
-
-        <div class="bg-gray-50 rounded-lg p-4 border">
-          <p class="text-gray-500">Region</p>
-          <p class="font-medium text-gray-800 mt-1">Primary Data Zone</p>
-        </div>
-
-        <div class="bg-gray-50 rounded-lg p-4 border">
-          <p class="text-gray-500">Current Task</p>
-          <p id="taskText" class="font-medium text-blue-600 mt-1">
-            Applying updates
-          </p>
-        </div>
-
-        <div class="bg-gray-50 rounded-lg p-4 border">
-          <p class="text-gray-500">Service Health</p>
-          <p class="font-medium text-yellow-600 mt-1">Degraded</p>
-        </div>
+      <!-- ✅ GitBash Terminal -->
+      <div class="bg-black text-green-400 rounded-lg p-4 font-mono text-sm h-80 overflow-y-auto border">
+        
+        <div id="terminal"></div>
 
       </div>
 
       <!-- Contact -->
-      <div class="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p class="text-sm text-red-700 font-medium">
+      <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-red-700 text-sm font-medium">
           ⚠ Contact the owner of the Server ID:
         </p>
         <p class="mt-2 font-mono text-sm text-gray-800">
-          GitBash rchand/192.168.9.1/233 Go Lang Terminal 5.31
+          GitBash rchand@192.168.9.1:/233 (Go Lang Terminal v5.31)
         </p>
       </div>
 
     </div>
 
-    <!-- Footer -->
-    <p class="text-center text-xs text-gray-400 mt-8">
-      © 2026 Cloud Infrastructure Platform • All systems monitored
-    </p>
-
   </main>
 
-  <!-- JS -->
+  <!-- ✅ JS for Terminal Simulation -->
   <script>
-    const tasks = [
-      "Applying updates",
-      "Restarting services",
-      "Optimizing workloads",
-      "Verifying system integrity"
-    ];
+    const terminal = document.getElementById("terminal");
 
-    const taskText = document.getElementById("taskText");
-    let i = 0;
-
-    setInterval(() => {
-      taskText.textContent = tasks[i];
-      i = (i + 1) % tasks.length;
-    }, 2500);
-  </script>
-
-</body>
-</html>
+    const lines = [
+      "rchand@cloud-node:/233$ initializing instance...",
+      "Loading dependencies...",
+      "Connecting to cluster [192.168.9.1]...",
+      "✔ Network handshake complete",
+      "Starting Go Lang services...",
+      "Running version: v5.31",
+      "Applying security patches...",
+      "Optimizing cloud resources...",
+      "Restarting services...",
+      "⚠ Instance temporarily in maintenance mode",
