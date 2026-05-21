@@ -3,120 +3,136 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cloud Instance - Under Maintenance</title>
+  <title>Cloud Instance Maintenance</title>
 
-  <!-- Tailwind CDN -->
+  <!-- Tailwind -->
   https://cdn.tailwindcss.comscript>
 
   <style>
-    /* Animated gradient background */
-    body {
-      background: linear-gradient(-45deg, #0f172a, #1e293b, #020617, #0c4a6e);
-      background-size: 400% 400%;
-      animation: gradientMove 12s ease infinite;
-    }
-
-    @keyframes gradientMove {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-
-    /* Loader animation */
+    /* Smooth loader */
     .spinner {
-      border: 4px solid rgba(255,255,255,0.1);
-      border-left-color: #38bdf8;
+      border: 3px solid #e5e7eb;
+      border-top: 3px solid #2563eb;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 42px;
+      height: 42px;
       animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Glow card effect */
-    .glow {
-      box-shadow: 0 0 20px rgba(56,189,248,0.4),
-                  0 0 40px rgba(14,165,233,0.2);
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 
-<body class="flex items-center justify-center min-h-screen text-white">
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-  <!-- Main Container -->
-  <div class="max-w-2xl w-full px-6">
-    
+  <!-- Header -->
+  <header class="bg-white border-b shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-semibold text-blue-600">Cloud Control Panel</h1>
+      <span class="text-sm text-gray-500">Environment: Production</span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-4xl mx-auto px-6 py-12">
+
     <!-- Card -->
-    <div class="bg-slate-900/70 backdrop-blur-lg rounded-2xl p-8 text-center glow border border-slate-700">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
 
       <!-- Title -->
-      <h1 class="text-4xl font-bold text-cyan-400 mb-4 tracking-wide">
-        ☁️ Cloud Instance
-      </h1>
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-semibold text-gray-900">
+          ☁️ Cloud Instance Status
+        </h2>
 
-      <!-- Status Badge -->
-      <div id="statusBadge"
-           class="inline-block px-4 py-2 mb-6 rounded-full bg-yellow-500/20 text-yellow-400 text-sm font-semibold animate-pulse">
-        Under Development • Maintenance Mode
+        <span id="statusBadge"
+          class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-medium">
+          Maintenance
+        </span>
       </div>
 
-      <!-- Loader -->
-      <div class="flex justify-center mb-6">
+      <!-- Divider -->
+      <div class="my-6 border-t"></div>
+
+      <!-- Status Section -->
+      <div class="flex items-center gap-6">
+
         <div class="spinner"></div>
+
+        <div>
+          <p class="text-lg font-medium text-gray-800">
+            Instance Under Development & Maintenance
+          </p>
+          <p class="text-sm text-gray-500">
+            Updates and optimizations are currently being applied. Services will resume soon.
+          </p>
+        </div>
+
       </div>
 
-      <!-- Description -->
-      <p class="text-gray-300 mb-6">
-        This cloud environment is currently undergoing upgrades and optimization.
-        Services will be restored shortly with improved performance and stability.
-      </p>
+      <!-- Info Grid -->
+      <div class="grid grid-cols-2 gap-6 mt-8 text-sm">
 
-      <!-- Cloud Info Panel -->
-      <div class="bg-slate-800 rounded-lg p-4 text-left text-sm font-mono">
-        <p><span class="text-cyan-400">Instance:</span> Active (Paused)</p>
-        <p><span class="text-cyan-400">Region:</span> Secure Cluster Zone</p>
-        <p><span class="text-cyan-400">Status:</span> Maintenance Pipeline Running</p>
-        <p><span class="text-cyan-400">Uptime:</span> Reinitializing...</p>
+        <div class="bg-gray-50 rounded-lg p-4 border">
+          <p class="text-gray-500">Instance ID</p>
+          <p class="font-mono text-gray-800 mt-1">cloud-prod-01</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border">
+          <p class="text-gray-500">Region</p>
+          <p class="font-medium text-gray-800 mt-1">Primary Data Zone</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border">
+          <p class="text-gray-500">Current Task</p>
+          <p id="taskText" class="font-medium text-blue-600 mt-1">
+            Applying updates
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border">
+          <p class="text-gray-500">Service Health</p>
+          <p class="font-medium text-yellow-600 mt-1">Degraded</p>
+        </div>
+
       </div>
 
       <!-- Contact -->
-      <div class="mt-6 text-red-400 text-sm font-semibold">
-        ⚠ Contact the owner of the Server ID:  
-        <br>
-        <span class="text-white font-mono">
+      <div class="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-sm text-red-700 font-medium">
+          ⚠ Contact the owner of the Server ID:
+        </p>
+        <p class="mt-2 font-mono text-sm text-gray-800">
           GitBash rchand/192.168.9.1/233 Go Lang Terminal 5.31
-        </span>
+        </p>
       </div>
 
     </div>
 
     <!-- Footer -->
-    <p class="text-center text-xs text-gray-500 mt-6">
-      © Cloud Infrastructure System • Secure Node Environment
+    <p class="text-center text-xs text-gray-400 mt-8">
+      © 2026 Cloud Infrastructure Platform • All systems monitored
     </p>
 
-  </div>
+  </main>
 
-  <!-- JS Animation -->
+  <!-- JS -->
   <script>
-    const badge = document.getElementById("statusBadge");
-
-    // Dynamic status text pulse
-    const states = [
-      "Under Development • Maintenance Mode",
-      "Applying Updates...",
-      "Optimizing Cloud Services...",
-      "Restarting Instance..."
+    const tasks = [
+      "Applying updates",
+      "Restarting services",
+      "Optimizing workloads",
+      "Verifying system integrity"
     ];
 
+    const taskText = document.getElementById("taskText");
     let i = 0;
 
     setInterval(() => {
-      badge.innerText = states[i];
-      i = (i + 1) % states.length;
+      taskText.textContent = tasks[i];
+      i = (i + 1) % tasks.length;
     }, 2500);
   </script>
 
