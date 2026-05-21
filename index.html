@@ -3,168 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Under Construction</title>
+<title>System</title>
 
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Segoe UI', sans-serif;
-    }
+*{margin:0;padding:0;box-sizing:border-box;}
 
-    body {
-        background: black;
-        overflow: hidden;
-        color: white;
-    }
+body{
+    background:#020202;
+    overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
 
-    /* Animated gradient background */
-    body::before {
-        content: "";
-        position: absolute;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at center, #00f0ff, #000, #ff00c8);
-        animation: moveBackground 12s linear infinite;
-        z-index: -2;
-        opacity: 0.15;
-    }
+/* TEXT */
+.title{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:clamp(2.2rem,4vw,3rem);
+    letter-spacing:3px;
+    color:#e8e8e8;
+    pointer-events:none;
+    text-align:center;
+}
 
-    @keyframes moveBackground {
-        0% { transform: translate(-25%, -25%) rotate(0deg); }
-        50% { transform: translate(-30%, -20%) rotate(180deg); }
-        100% { transform: translate(-25%, -25%) rotate(360deg); }
-    }
+.title::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.12),
+        transparent
+    );
+    transform:translateX(-100%);
+    animation: shimmer 6s linear infinite;
+}
 
-    /* Grid overlay */
-    .grid {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(#00f0ff22 1px, transparent 1px),
-                    linear-gradient(90deg, #00f0ff22 1px, transparent 1px);
-        background-size: 40px 40px;
-        animation: gridMove 10s linear infinite;
-    }
+@keyframes shimmer{
+    to{ transform:translateX(120%); }
+}
 
-    @keyframes gridMove {
-        from {
-            transform: translateY(0);
-        }
-        to {
-            transform: translateY(40px);
-        }
-    }
-
-    /* Glowing text container */
-    .container {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-    }
-
-    h1 {
-        font-size: 3rem;
-        text-transform: uppercase;
-        letter-spacing: 4px;
-        color: #00f0ff;
-        animation: glitch 2s infinite;
-        text-shadow: 
-            0 0 10px #00f0ff,
-            0 0 20px #00f0ff,
-            0 0 40px #00f0ff,
-            0 0 80px #00f0ff;
-    }
-
-    /* Glitch effect */
-    @keyframes glitch {
-        0% { transform: translate(0); }
-        20% { transform: translate(-2px, 2px); }
-        40% { transform: translate(-2px, -2px); }
-        60% { transform: translate(2px, 2px); }
-        80% { transform: translate(2px, -2px); }
-        100% { transform: translate(0); }
-    }
-
-    /* Floating particles */
-    canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-
+canvas{
+    position:fixed;
+    inset:0;
+}
 </style>
 </head>
+
 <body>
 
-<div class="grid"></div>
-
-<canvas id="particles"></canvas>
-
-<div class="container">
-    <h1>Website Under Construction</h1>
-</div>
+<canvas id="c"></canvas>
+<div id="title" class="title">Website Under Construction</div>
 
 <script>
-const canvas = document.getElementById('particles');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const title = document.getElementById("title");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resize(){
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
 
-let particlesArray = [];
+/* ---------------- SUPER SMOOTH CURSOR ---------------- */
+let mouse = {x:innerWidth/2,y:innerHeight/2};
+let target = {...mouse};
+let vel = {x:0,y:0};
 
-class Particle {
-    constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2;
-        this.speedX = (Math.random() - 0.5);
-        this.speedY = (Math.random() - 0.5);
-    }
+addEventListener("mousemove", e=>{
+    target.x = e.clientX;
+    target.y = e.clientY;
+});
 
-    update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
+function updateMouse(){
+    let dx = target.x - mouse.x;
+    let dy = target.y - mouse.y;
 
-        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-    }
+    vel.x = dx * 0.07;
+    vel.y = dy * 0.07;
 
-    draw() {
-        ctx.fillStyle = '#00f0ff';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    mouse.x += vel.x;
+    mouse.y += vel.y;
 }
 
-function init() {
-    particlesArray = [];
-    for (let i = 0; i < 120; i++) {
-        particlesArray.push(new Particle());
-    }
-}
+/* ---------------- FLOW FIELD ---------------- */
+const particles=[];
+const COUNT=180;
 
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particlesArray.forEach(p => {
-        p.update();
-        p.draw();
+for(let i=0;i<COUNT;i++){
+    particles.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        angle:Math.random()*Math.PI*2
     });
+}
+
+/* field function (this is the core "alien intelligence") */
+function field(x,y){
+    return Math.sin(x*0.002 + performance.now()*0.0005)
+         + Math.cos(y*0.002 + performance.now()*0.0004);
+}
+
+function updateParticles(){
+    particles.forEach(p=>{
+        let f = field(p.x,p.y);
+
+        p.angle += f * 0.02;
+
+        let speed = 0.6;
+        p.x += Math.cos(p.angle)*speed;
+        p.y += Math.sin(p.angle)*speed;
+
+        /* wrap (not bounce → feels continuous space) */
+        if(p.x<0) p.x = canvas.width;
+        if(p.x>canvas.width) p.x = 0;
+        if(p.y<0) p.y = canvas.height;
+        if(p.y>canvas.height) p.y = 0;
+
+        /* repel from mouse */
+        let dx = p.x - mouse.x;
+        let dy = p.y - mouse.y;
+        let d = Math.hypot(dx,dy);
+
+        if(d<120){
+            p.x += dx * 0.04;
+            p.y += dy * 0.04;
+        }
+    });
+}
+
+function drawParticles(){
+    ctx.fillStyle="rgba(255,255,255,0.25)";
+    particles.forEach(p=>{
+        ctx.fillRect(p.x,p.y,1,1);
+    });
+}
+
+/* ---------------- FLOW MESH BACKGROUND ---------------- */
+function drawField(){
+    for(let i=0;i<4;i++){
+        ctx.beginPath();
+        for(let x=0;x<canvas.width;x+=8){
+            let y = canvas.height/2 +
+                Math.sin(x*0.002 + i + performance.now()*0.001) * (30 + i*6);
+
+            ctx.lineTo(x,y);
+        }
+        ctx.strokeStyle = `rgba(255,255,255,${0.03 - i*0.006})`;
+        ctx.stroke();
+    }
+}
+
+/* ---------------- TEXT INTERACTION (EXTREME) ---------------- */
+function updateText(){
+    const rect = title.getBoundingClientRect();
+
+    let cx = rect.left + rect.width/2;
+    let cy = rect.top + rect.height/2;
+
+    let dx = mouse.x - cx;
+    let dy = mouse.y - cy;
+    let d = Math.hypot(dx,dy);
+
+    let force = Math.max(0,160-d)/160;
+
+    /* “soft body” feeling */
+    let tx = dx * force * 0.08;
+    let ty = dy * force * 0.08;
+
+    let scale = 1 + force * 0.04;
+
+    /* rotational depth */
+    let rx = dy * force * 0.012;
+    let ry = -dx * force * 0.012;
+
+    title.style.transform = `
+        perspective(900px)
+        translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))
+        scale(${scale})
+        rotateX(${rx}deg)
+        rotateY(${ry}deg)
+    `;
+
+    /* velocity wake */
+    let speed = Math.hypot(vel.x, vel.y);
+
+    title.style.textShadow =
+        `0 ${4+speed}px ${12+speed*2}px rgba(255,255,255,0.12)`;
+}
+
+/* ---------------- LOOP ---------------- */
+function animate(){
+    updateMouse();
+
+    ctx.fillStyle="rgba(0,0,0,0.15)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    drawField();
+    updateParticles();
+    drawParticles();
+
+    updateText();
+
     requestAnimationFrame(animate);
 }
 
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    init();
-});
-
-init();
 animate();
 </script>
 
