@@ -3,211 +3,208 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System</title>
+<title>Confidential</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+* { margin:0; padding:0; box-sizing:border-box; }
 
-body{
-    background:#020202;
+body {
+    background:#000;
     overflow:hidden;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-family:monospace;
 }
 
-/* TEXT */
-.title{
+/* HOLOGRAM TEXT */
+.title {
     position:absolute;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
-    font-size:clamp(2.2rem,4vw,3rem);
-    letter-spacing:3px;
-    color:#e8e8e8;
-    pointer-events:none;
+    font-size:clamp(2.5rem,4vw,3.2rem);
+    letter-spacing:4px;
+    color:#e6faff;
     text-align:center;
+    pointer-events:none;
+
+    text-shadow:
+        0 0 10px rgba(0,255,255,0.3),
+        0 0 30px rgba(0,255,255,0.2);
 }
 
-.title::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.12),
-        transparent
-    );
-    transform:translateX(-100%);
-    animation: shimmer 6s linear infinite;
-}
-
-@keyframes shimmer{
-    to{ transform:translateX(120%); }
-}
-
-canvas{
+canvas {
     position:fixed;
-    inset:0;
+    top:0;
+    left:0;
 }
 </style>
 </head>
-
 <body>
 
-<canvas id="c"></canvas>
-<div id="title" class="title">Website Under Construction</div>
+<canvas id="bg"></canvas>
+<div class="title">Website Under Construction</div>
 
 <script>
-const canvas = document.getElementById("c");
+const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
-const title = document.getElementById("title");
 
 function resize(){
     canvas.width = innerWidth;
     canvas.height = innerHeight;
 }
 resize();
-addEventListener("resize", resize);
+window.addEventListener("resize", resize);
 
-/* ---------------- SUPER SMOOTH CURSOR ---------------- */
-let mouse = {x:innerWidth/2,y:innerHeight/2};
-let target = {...mouse};
-let vel = {x:0,y:0};
+/* ---------------- MATRIX ---------------- */
 
-addEventListener("mousemove", e=>{
-    target.x = e.clientX;
-    target.y = e.clientY;
-});
+const chars = "010101ABCDEF012345";
+let drops = [];
+const size = 16;
 
-function updateMouse(){
-    let dx = target.x - mouse.x;
-    let dy = target.y - mouse.y;
-
-    vel.x = dx * 0.07;
-    vel.y = dy * 0.07;
-
-    mouse.x += vel.x;
-    mouse.y += vel.y;
+function initMatrix(){
+    let cols = Math.floor(canvas.width / size);
+    drops = Array(cols).fill(0).map(()=>Math.random()*canvas.height);
 }
+initMatrix();
 
-/* ---------------- FLOW FIELD ---------------- */
-const particles=[];
-const COUNT=180;
+function drawMatrix(){
+    ctx.font = size + "px monospace";
 
-for(let i=0;i<COUNT;i++){
-    particles.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        angle:Math.random()*Math.PI*2
-    });
-}
+    for(let i=0;i<drops.length;i++){
+        let x = i * size;
+        let y = drops[i];
+        let text = chars[Math.floor(Math.random()*chars.length)];
 
-/* field function (this is the core "alien intelligence") */
-function field(x,y){
-    return Math.sin(x*0.002 + performance.now()*0.0005)
-         + Math.cos(y*0.002 + performance.now()*0.0004);
-}
+        ctx.fillStyle = "rgba(0,255,200,0.25)";
+        ctx.fillText(text,x,y);
 
-function updateParticles(){
-    particles.forEach(p=>{
-        let f = field(p.x,p.y);
+        ctx.fillStyle = "rgba(0,255,200,0.06)";
+        ctx.fillText(text,x,y-10);
 
-        p.angle += f * 0.02;
+        drops[i] += size * 0.8;
 
-        let speed = 0.6;
-        p.x += Math.cos(p.angle)*speed;
-        p.y += Math.sin(p.angle)*speed;
-
-        /* wrap (not bounce → feels continuous space) */
-        if(p.x<0) p.x = canvas.width;
-        if(p.x>canvas.width) p.x = 0;
-        if(p.y<0) p.y = canvas.height;
-        if(p.y>canvas.height) p.y = 0;
-
-        /* repel from mouse */
-        let dx = p.x - mouse.x;
-        let dy = p.y - mouse.y;
-        let d = Math.hypot(dx,dy);
-
-        if(d<120){
-            p.x += dx * 0.04;
-            p.y += dy * 0.04;
+        if(drops[i] > canvas.height){
+            drops[i] = Math.random()*-100;
         }
-    });
-}
-
-function drawParticles(){
-    ctx.fillStyle="rgba(255,255,255,0.25)";
-    particles.forEach(p=>{
-        ctx.fillRect(p.x,p.y,1,1);
-    });
-}
-
-/* ---------------- FLOW MESH BACKGROUND ---------------- */
-function drawField(){
-    for(let i=0;i<4;i++){
-        ctx.beginPath();
-        for(let x=0;x<canvas.width;x+=8){
-            let y = canvas.height/2 +
-                Math.sin(x*0.002 + i + performance.now()*0.001) * (30 + i*6);
-
-            ctx.lineTo(x,y);
-        }
-        ctx.strokeStyle = `rgba(255,255,255,${0.03 - i*0.006})`;
-        ctx.stroke();
     }
 }
 
-/* ---------------- TEXT INTERACTION (EXTREME) ---------------- */
-function updateText(){
-    const rect = title.getBoundingClientRect();
+/* ---------------- INTERACTIVE NODES ---------------- */
 
-    let cx = rect.left + rect.width/2;
-    let cy = rect.top + rect.height/2;
+let mouse = {x:canvas.width/2,y:canvas.height/2};
 
-    let dx = mouse.x - cx;
-    let dy = mouse.y - cy;
-    let d = Math.hypot(dx,dy);
+window.addEventListener("mousemove",e=>{
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
 
-    let force = Math.max(0,160-d)/160;
+/* click = activate */
+window.addEventListener("click", ()=>{
+    nodes.forEach(n=>{
+        let dx = mouse.x - n.x;
+        let dy = mouse.y - n.y;
+        let d = Math.hypot(dx,dy);
 
-    /* “soft body” feeling */
-    let tx = dx * force * 0.08;
-    let ty = dy * force * 0.08;
+        if(d < 120){
+            n.active = 1;
+        }
+    });
+});
 
-    let scale = 1 + force * 0.04;
+/* nodes */
+let nodes = [];
 
-    /* rotational depth */
-    let rx = dy * force * 0.012;
-    let ry = -dx * force * 0.012;
+for(let i=0;i<120;i++){
+    nodes.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        vx:(Math.random()-0.5)*0.3,
+        vy:(Math.random()-0.5)*0.3,
+        active:0
+    });
+}
 
-    title.style.transform = `
-        perspective(900px)
-        translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))
-        scale(${scale})
-        rotateX(${rx}deg)
-        rotateY(${ry}deg)
-    `;
+function updateNodes(){
+    nodes.forEach(n=>{
+        n.x += n.vx;
+        n.y += n.vy;
 
-    /* velocity wake */
-    let speed = Math.hypot(vel.x, vel.y);
+        if(n.x<0||n.x>canvas.width)n.vx*=-1;
+        if(n.y<0||n.y>canvas.height)n.vy*=-1;
 
-    title.style.textShadow =
-        `0 ${4+speed}px ${12+speed*2}px rgba(255,255,255,0.12)`;
+        /* hover attraction */
+        let dx = mouse.x - n.x;
+        let dy = mouse.y - n.y;
+        let dist = Math.hypot(dx,dy);
+
+        if(dist < 140){
+            n.x += dx * 0.01;
+            n.y += dy * 0.01;
+        }
+
+        /* fade activation */
+        if(n.active > 0){
+            n.active -= 0.01;
+        }
+    });
+}
+
+function drawNodes(){
+    nodes.forEach(n=>{
+        ctx.beginPath();
+        ctx.arc(n.x,n.y,n.active?3:1.5,0,Math.PI*2);
+
+        ctx.fillStyle = n.active
+            ? "rgba(0,255,255,"+n.active+")"
+            : "rgba(255,255,255,0.3)";
+
+        ctx.fill();
+    });
+}
+
+/* connections */
+function drawConnections(){
+    for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<nodes.length;j++){
+
+            let dx = nodes[i].x - nodes[j].x;
+            let dy = nodes[i].y - nodes[j].y;
+            let d = Math.hypot(dx,dy);
+
+            if(d < 100){
+                let strength = 1 - d/100;
+
+                let intensity = Math.max(
+                    nodes[i].active,
+                    nodes[j].active
+                );
+
+                ctx.strokeStyle = intensity > 0
+                    ? `rgba(0,255,255,${strength * intensity})`
+                    : `rgba(255,255,255,${strength * 0.1})`;
+
+                ctx.lineWidth = 0.6;
+
+                ctx.beginPath();
+                ctx.moveTo(nodes[i].x,nodes[i].y);
+                ctx.lineTo(nodes[j].x,nodes[j].y);
+                ctx.stroke();
+            }
+        }
+    }
 }
 
 /* ---------------- LOOP ---------------- */
-function animate(){
-    updateMouse();
 
-    ctx.fillStyle="rgba(0,0,0,0.15)";
+function animate(){
+
+    /* soft fade (important) */
+    ctx.fillStyle = "rgba(0,0,0,0.1)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    drawField();
-    updateParticles();
-    drawParticles();
-
-    updateText();
+    drawMatrix();        // background
+    updateNodes();
+    drawNodes();
+    drawConnections();
 
     requestAnimationFrame(animate);
 }
