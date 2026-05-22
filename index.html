@@ -3,117 +3,178 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Confidential</title>
+<title>System</title>
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box;}
 
-body {
+body{
     background:#000;
     overflow:hidden;
     font-family:monospace;
 }
 
-/* HOLOGRAM TEXT */
-.title {
+/* BACKGROUND IMAGE */
+.bgImg{
+    position:fixed;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:0.12;
+    filter:brightness(70%) contrast(120%);
+    z-index:0;
+}
+
+/* CANVAS */
+canvas{
+    position:fixed;
+    top:0;left:0;
+    z-index:1;
+}
+
+/* TEXT */
+.title{
     position:absolute;
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
-    font-size:clamp(2.5rem,4vw,3.2rem);
-    letter-spacing:4px;
     color:#e6faff;
-    text-align:center;
-    pointer-events:none;
-
+    font-size:clamp(2.4rem,4vw,3rem);
+    letter-spacing:3px;
     text-shadow:
         0 0 10px rgba(0,255,255,0.3),
-        0 0 30px rgba(0,255,255,0.2);
+        0 0 20px rgba(0,255,255,0.2);
+    z-index:2;
 }
 
-canvas {
-    position:fixed;
-    top:0;
-    left:0;
+/* LOGS */
+.logs{
+    position:absolute;
+    top:10px;
+    left:10px;
+    font-size:11px;
+    color:rgba(0,255,255,0.4);
+    z-index:2;
 }
 </style>
 </head>
+
 <body>
 
-<canvas id="bg"></canvas>
+<img id="bgImg" class="bgImg">
+<canvas id="c"></canvas>
+
 <div class="title">Website Under Construction</div>
+<div id="logs" class="logs"></div>
 
 <script>
-const canvas = document.getElementById("bg");
+const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
+const logsDiv = document.getElementById("logs");
 
 function resize(){
     canvas.width = innerWidth;
     canvas.height = innerHeight;
 }
 resize();
-window.addEventListener("resize", resize);
+addEventListener("resize", resize);
+
+/* ---------------- IMAGE (API STYLE) ---------------- */
+
+const img = document.getElementById("bgImg");
+
+function loadImage(){
+    img.src = "https://source.unsplash.com/1600x900/?technology,ai,cyber" + Date.now();
+}
+loadImage();
+setInterval(loadImage,15000);
 
 /* ---------------- MATRIX ---------------- */
 
-const chars = "010101ABCDEF012345";
-let drops = [];
-const size = 16;
+const chars="01ABCDEF";
+const size=16;
+let drops=[];
 
 function initMatrix(){
-    let cols = Math.floor(canvas.width / size);
-    drops = Array(cols).fill(0).map(()=>Math.random()*canvas.height);
+    let cols=Math.floor(canvas.width/size);
+    drops=Array(cols).fill(0).map(()=>Math.random()*canvas.height);
 }
 initMatrix();
 
 function drawMatrix(){
-    ctx.font = size + "px monospace";
+    ctx.font=size+"px monospace";
 
     for(let i=0;i<drops.length;i++){
-        let x = i * size;
-        let y = drops[i];
-        let text = chars[Math.floor(Math.random()*chars.length)];
+        let x=i*size;
+        let y=drops[i];
+        let char=chars[Math.floor(Math.random()*chars.length)];
 
-        ctx.fillStyle = "rgba(0,255,200,0.25)";
-        ctx.fillText(text,x,y);
+        ctx.fillStyle="rgba(0,255,200,0.25)";
+        ctx.fillText(char,x,y);
 
-        ctx.fillStyle = "rgba(0,255,200,0.06)";
-        ctx.fillText(text,x,y-10);
+        ctx.fillStyle="rgba(0,255,200,0.06)";
+        ctx.fillText(char,x,y-10);
 
-        drops[i] += size * 0.8;
+        drops[i]+=size*0.8;
 
-        if(drops[i] > canvas.height){
-            drops[i] = Math.random()*-100;
+        if(drops[i]>canvas.height){
+            drops[i]=Math.random()*-100;
         }
     }
 }
 
-/* ---------------- INTERACTIVE NODES ---------------- */
+/* ---------------- COMMAND LINES ---------------- */
 
-let mouse = {x:canvas.width/2,y:canvas.height/2};
+let lines=[];
+for(let i=0;i<30;i++){
+    lines.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        len:60+Math.random()*140,
+        speed:0.4+Math.random()*0.6
+    });
+}
 
-window.addEventListener("mousemove",e=>{
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+function drawLines(){
+    ctx.strokeStyle="rgba(0,255,255,0.1)";
+    lines.forEach(l=>{
+        ctx.beginPath();
+        ctx.moveTo(l.x,l.y);
+        ctx.lineTo(l.x+l.len,l.y);
+        ctx.stroke();
+
+        l.x+=l.speed;
+
+        if(l.x>canvas.width){
+            l.x=-l.len;
+            l.y=Math.random()*canvas.height;
+        }
+    });
+}
+
+/* ---------------- INTERACTION ---------------- */
+
+let mouse={x:canvas.width/2,y:canvas.height/2};
+
+addEventListener("mousemove",e=>{
+    mouse.x=e.clientX;
+    mouse.y=e.clientY;
 });
 
-/* click = activate */
-window.addEventListener("click", ()=>{
+addEventListener("click",()=>{
     nodes.forEach(n=>{
-        let dx = mouse.x - n.x;
-        let dy = mouse.y - n.y;
-        let d = Math.hypot(dx,dy);
-
-        if(d < 120){
-            n.active = 1;
+        let dx=mouse.x-n.x;
+        let dy=mouse.y-n.y;
+        if(Math.hypot(dx,dy)<120){
+            n.active=1;
         }
     });
 });
 
-/* nodes */
-let nodes = [];
+/* ---------------- NODES ---------------- */
 
-for(let i=0;i<120;i++){
+let nodes=[];
+for(let i=0;i<130;i++){
     nodes.push({
         x:Math.random()*canvas.width,
         y:Math.random()*canvas.height,
@@ -125,26 +186,22 @@ for(let i=0;i<120;i++){
 
 function updateNodes(){
     nodes.forEach(n=>{
-        n.x += n.vx;
-        n.y += n.vy;
+        n.x+=n.vx;
+        n.y+=n.vy;
 
         if(n.x<0||n.x>canvas.width)n.vx*=-1;
         if(n.y<0||n.y>canvas.height)n.vy*=-1;
 
-        /* hover attraction */
-        let dx = mouse.x - n.x;
-        let dy = mouse.y - n.y;
-        let dist = Math.hypot(dx,dy);
+        let dx=mouse.x-n.x;
+        let dy=mouse.y-n.y;
+        let d=Math.hypot(dx,dy);
 
-        if(dist < 140){
-            n.x += dx * 0.01;
-            n.y += dy * 0.01;
+        if(d<140){
+            n.x+=dx*0.01;
+            n.y+=dy*0.01;
         }
 
-        /* fade activation */
-        if(n.active > 0){
-            n.active -= 0.01;
-        }
+        if(n.active>0)n.active-=0.01;
     });
 }
 
@@ -153,8 +210,8 @@ function drawNodes(){
         ctx.beginPath();
         ctx.arc(n.x,n.y,n.active?3:1.5,0,Math.PI*2);
 
-        ctx.fillStyle = n.active
-            ? "rgba(0,255,255,"+n.active+")"
+        ctx.fillStyle=n.active
+            ? `rgba(0,255,255,${n.active})`
             : "rgba(255,255,255,0.3)";
 
         ctx.fill();
@@ -165,24 +222,17 @@ function drawNodes(){
 function drawConnections(){
     for(let i=0;i<nodes.length;i++){
         for(let j=i+1;j<nodes.length;j++){
+            let dx=nodes[i].x-nodes[j].x;
+            let dy=nodes[i].y-nodes[j].y;
+            let d=Math.hypot(dx,dy);
 
-            let dx = nodes[i].x - nodes[j].x;
-            let dy = nodes[i].y - nodes[j].y;
-            let d = Math.hypot(dx,dy);
+            if(d<100){
+                let alpha=1-d/100;
+                let strength=Math.max(nodes[i].active,nodes[j].active);
 
-            if(d < 100){
-                let strength = 1 - d/100;
-
-                let intensity = Math.max(
-                    nodes[i].active,
-                    nodes[j].active
-                );
-
-                ctx.strokeStyle = intensity > 0
-                    ? `rgba(0,255,255,${strength * intensity})`
-                    : `rgba(255,255,255,${strength * 0.1})`;
-
-                ctx.lineWidth = 0.6;
+                ctx.strokeStyle=strength>0
+                    ? `rgba(0,255,255,${alpha*strength})`
+                    : `rgba(0,255,255,${alpha*0.1})`;
 
                 ctx.beginPath();
                 ctx.moveTo(nodes[i].x,nodes[i].y);
@@ -193,18 +243,36 @@ function drawConnections(){
     }
 }
 
+/* ---------------- LOGS ---------------- */
+
+let logs=[];
+setInterval(()=>{
+    logs.unshift(
+        "NODE_"+Math.floor(Math.random()*999)+
+        " HASH_"+Math.random().toString(16).slice(2,8)
+    );
+    if(logs.length>20) logs.pop();
+},200);
+
+function renderLogs(){
+    logsDiv.innerHTML = logs.join("<br>");
+}
+
 /* ---------------- LOOP ---------------- */
 
 function animate(){
 
-    /* soft fade (important) */
-    ctx.fillStyle = "rgba(0,0,0,0.1)";
+    ctx.fillStyle="rgba(0,0,0,0.12)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    drawMatrix();        // background
+    drawMatrix();
+    drawLines();
+
     updateNodes();
     drawNodes();
     drawConnections();
+
+    renderLogs();
 
     requestAnimationFrame(animate);
 }
