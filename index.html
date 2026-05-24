@@ -1,283 +1,1908 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rahul Chand // Enterprise Systems Interface</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+    --bg:#020617;
+    --bg2:#050b1f;
+    --panel:rgba(10,22,45,.72);
+    --panel2:rgba(0,240,255,.07);
+    --line:rgba(0,240,255,.24);
+    --line2:rgba(124,58,237,.32);
+    --cyan:#00f0ff;
+    --blue:#38bdf8;
+    --purple:#8b5cf6;
+    --green:#22c55e;
+    --amber:#f59e0b;
+    --text:#e6fbff;
+    --muted:#9fb7c7;
+    --soft:#cbd5e1;
+    --shadow:0 0 45px rgba(0,240,255,.18);
+    --radius:24px;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
 
 body{
-    background:#000;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,240,255,.12), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(139,92,246,.16), transparent 28%),
+        radial-gradient(circle at 50% 90%, rgba(34,197,94,.07), transparent 35%),
+        var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x:hidden;
+    line-height:1.65;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:-3;
+    background:
+        linear-gradient(rgba(0,240,255,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,240,255,.055) 1px, transparent 1px);
+    background-size:52px 52px;
+    mask-image:linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,.35), rgba(0,0,0,1));
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    background:linear-gradient(rgba(255,255,255,.025) 50%, transparent 50%);
+    background-size:100% 4px;
+    mix-blend-mode:overlay;
+    opacity:.25;
+}
+
+#networkCanvas{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    z-index:-2;
+    pointer-events:none;
+}
+
+.boot{
+    position:fixed;
+    inset:0;
+    background:#020617;
+    z-index:9998;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:opacity .8s ease, visibility .8s ease;
+}
+
+.boot.hide{
+    opacity:0;
+    visibility:hidden;
+}
+
+.boot-box{
+    width:min(760px, 88vw);
+    border:1px solid var(--line);
+    background:rgba(0,0,0,.55);
+    border-radius:22px;
+    padding:28px;
+    box-shadow:0 0 60px rgba(0,240,255,.24);
+    position:relative;
     overflow:hidden;
-    font-family:monospace;
 }
 
-/* BACKGROUND IMAGE */
-.bgImg{
-    position:fixed;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    opacity:0.12;
-    filter:brightness(70%) contrast(120%);
-    z-index:0;
-}
-
-/* CANVAS */
-canvas{
-    position:fixed;
-    top:0;left:0;
-    z-index:1;
-}
-
-/* TEXT */
-.title{
+.boot-box::before{
+    content:"";
     position:absolute;
+    inset:0;
+    background:linear-gradient(120deg, transparent, rgba(0,240,255,.13), transparent);
+    transform:translateX(-100%);
+    animation:scan 2.6s linear infinite;
+}
+
+@keyframes scan{
+    to{transform:translateX(100%);}
+}
+
+.boot-title{
+    color:var(--cyan);
+    letter-spacing:4px;
+    font-size:.85rem;
+    text-transform:uppercase;
+    margin-bottom:18px;
+}
+
+.boot-lines{
+    display:grid;
+    gap:9px;
+    font-family:Consolas, monospace;
+    font-size:.95rem;
+    color:#bdf8ff;
+}
+
+.boot-line span{
+    color:var(--green);
+}
+
+.progress{
+    position:fixed;
+    top:0;
+    left:0;
+    height:3px;
+    background:linear-gradient(90deg, var(--cyan), var(--purple));
+    z-index:2000;
+    width:0%;
+    box-shadow:0 0 18px var(--cyan);
+}
+
+.cursor{
+    position:fixed;
+    width:18px;
+    height:18px;
+    border:1px solid var(--cyan);
+    border-radius:50%;
+    pointer-events:none;
+    z-index:2001;
+    transform:translate(-50%, -50%);
+    box-shadow:0 0 18px rgba(0,240,255,.8);
+    transition:width .18s ease, height .18s ease, background .18s ease;
+}
+
+.cursor.grow{
+    width:48px;
+    height:48px;
+    background:rgba(0,240,255,.07);
+}
+
+.container{
+    width:min(1180px, calc(100% - 42px));
+    margin:0 auto;
+}
+
+section{
+    padding:110px 0;
+    position:relative;
+}
+
+.section-kicker{
+    display:inline-flex;
+    gap:10px;
+    align-items:center;
+    color:var(--cyan);
+    border:1px solid var(--line);
+    background:rgba(0,240,255,.05);
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:.78rem;
+    letter-spacing:1.8px;
+    text-transform:uppercase;
+    margin-bottom:18px;
+}
+
+.section-kicker::before{
+    content:"";
+    width:8px;
+    height:8px;
+    background:var(--cyan);
+    border-radius:50%;
+    box-shadow:0 0 18px var(--cyan);
+}
+
+h1,h2,h3,h4{
+    line-height:1.1;
+}
+
+h1{
+    font-size:clamp(3rem, 8vw, 7.4rem);
+    letter-spacing:-5px;
+}
+
+h2{
+    font-size:clamp(2.2rem, 5vw, 4.5rem);
+    letter-spacing:-2px;
+    margin-bottom:20px;
+}
+
+h3{
+    font-size:1.45rem;
+    margin-bottom:12px;
+}
+
+p{
+    color:var(--soft);
+}
+
+a{
+    color:inherit;
+    text-decoration:none;
+}
+
+.highlight{
+    color:var(--cyan);
+    text-shadow:0 0 22px rgba(0,240,255,.45);
+}
+
+.muted{
+    color:var(--muted);
+}
+
+.side-nav{
+    position:fixed;
+    right:24px;
     top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    color:#e6faff;
-    font-size:clamp(2.4rem,4vw,3rem);
-    letter-spacing:3px;
-    text-shadow:
-        0 0 10px rgba(0,255,255,0.3),
-        0 0 20px rgba(0,255,255,0.2);
-    z-index:2;
+    transform:translateY(-50%);
+    z-index:1200;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
 }
 
-/* LOGS */
-.logs{
+.side-nav a{
+    width:12px;
+    height:12px;
+    border:1px solid var(--line);
+    background:rgba(0,240,255,.08);
+    border-radius:50%;
+    position:relative;
+}
+
+.side-nav a:hover,
+.side-nav a.active{
+    background:var(--cyan);
+    box-shadow:0 0 18px var(--cyan);
+}
+
+.side-nav a span{
     position:absolute;
-    top:10px;
-    left:10px;
-    font-size:11px;
-    color:rgba(0,255,255,0.4);
-    z-index:2;
+    right:22px;
+    top:50%;
+    transform:translateY(-50%);
+    background:#08111f;
+    border:1px solid var(--line);
+    padding:6px 10px;
+    border-radius:999px;
+    opacity:0;
+    pointer-events:none;
+    white-space:nowrap;
+    color:var(--cyan);
+    font-size:.75rem;
+    transition:.25s ease;
+}
+
+.side-nav a:hover span{
+    opacity:1;
+}
+
+.topbar{
+    position:fixed;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(1060px, calc(100% - 36px));
+    z-index:1500;
+    border:1px solid rgba(0,240,255,.18);
+    background:rgba(2,6,23,.72);
+    backdrop-filter:blur(18px);
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 14px 10px 18px;
+    box-shadow:0 10px 40px rgba(0,0,0,.35);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:700;
+    letter-spacing:.6px;
+}
+
+.brand-dot{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 18px var(--green);
+}
+
+.top-links{
+    display:flex;
+    gap:8px;
+}
+
+.top-links a{
+    padding:8px 12px;
+    border-radius:999px;
+    color:var(--muted);
+    font-size:.86rem;
+    transition:.25s ease;
+}
+
+.top-links a:hover{
+    color:var(--cyan);
+    background:rgba(0,240,255,.08);
+}
+
+.hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding-top:86px;
+    overflow:hidden;
+}
+
+.hero-grid{
+    display:grid;
+    grid-template-columns:1.08fr .92fr;
+    gap:48px;
+    align-items:center;
+}
+
+.status-pill{
+    display:inline-flex;
+    gap:10px;
+    align-items:center;
+    padding:8px 13px;
+    border:1px solid var(--line);
+    background:rgba(0,240,255,.06);
+    border-radius:999px;
+    color:var(--cyan);
+    font-size:.84rem;
+    text-transform:uppercase;
+    letter-spacing:1.6px;
+    margin-bottom:22px;
+}
+
+.status-pill span{
+    width:9px;
+    height:9px;
+    background:var(--green);
+    border-radius:50%;
+    box-shadow:0 0 18px var(--green);
+}
+
+.hero-title .thin{
+    display:block;
+    color:transparent;
+    -webkit-text-stroke:1px rgba(0,240,255,.45);
+    text-shadow:none;
+}
+
+.hero-title .solid{
+    display:block;
+    background:linear-gradient(90deg, #fff, var(--cyan), var(--purple));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow:0 0 45px rgba(0,240,255,.22);
+}
+
+.type-line{
+    margin:20px 0 22px;
+    font-size:clamp(1rem, 2vw, 1.35rem);
+    color:var(--cyan);
+    font-family:Consolas, monospace;
+    min-height:34px;
+}
+
+.hero-copy{
+    max-width:700px;
+    font-size:1.05rem;
+}
+
+.hero-actions{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-top:32px;
+}
+
+.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:13px 18px;
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:rgba(0,240,255,.08);
+    color:var(--text);
+    transition:.25s ease;
+    cursor:pointer;
+    font-weight:700;
+}
+
+.btn.primary{
+    background:linear-gradient(135deg, rgba(0,240,255,.9), rgba(139,92,246,.85));
+    color:#020617;
+    border:none;
+    box-shadow:0 0 34px rgba(0,240,255,.25);
+}
+
+.btn:hover{
+    transform:translateY(-4px);
+    box-shadow:var(--shadow);
+}
+
+.hero-panel{
+    position:relative;
+    min-height:560px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.hud{
+    width:min(460px, 88vw);
+    aspect-ratio:1/1;
+    border-radius:50%;
+    position:relative;
+    display:grid;
+    place-items:center;
+}
+
+.hud-ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:1px solid rgba(0,240,255,.25);
+    animation:spin 18s linear infinite;
+}
+
+.hud-ring:nth-child(2){
+    inset:38px;
+    border-color:rgba(139,92,246,.35);
+    animation-duration:12s;
+    animation-direction:reverse;
+}
+
+.hud-ring:nth-child(3){
+    inset:78px;
+    border-style:dashed;
+    animation-duration:24s;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg);}
+}
+
+.core{
+    width:205px;
+    height:205px;
+    border-radius:38px;
+    border:1px solid var(--line);
+    background:linear-gradient(145deg, rgba(0,240,255,.11), rgba(139,92,246,.09));
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    box-shadow:0 0 65px rgba(0,240,255,.24);
+    transform:rotate(45deg);
+}
+
+.core-inner{
+    transform:rotate(-45deg);
+    text-align:center;
+}
+
+.core-inner strong{
+    font-size:2.8rem;
+    color:#fff;
+}
+
+.core-inner span{
+    display:block;
+    color:var(--cyan);
+    font-size:.8rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
+
+.floating-chip{
+    position:absolute;
+    border:1px solid var(--line);
+    background:rgba(2,6,23,.78);
+    backdrop-filter:blur(14px);
+    border-radius:16px;
+    padding:12px 14px;
+    box-shadow:0 10px 35px rgba(0,0,0,.3);
+    animation:floaty 5s ease-in-out infinite;
+}
+
+.floating-chip strong{
+    display:block;
+    color:#fff;
+    font-size:1.2rem;
+}
+
+.floating-chip span{
+    color:var(--muted);
+    font-size:.76rem;
+}
+
+.chip1{top:30px;left:8px;}
+.chip2{right:4px;top:110px;animation-delay:.8s;}
+.chip3{bottom:80px;left:0;animation-delay:1.5s;}
+.chip4{bottom:30px;right:36px;animation-delay:2.1s;}
+
+@keyframes floaty{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-14px);}
+}
+
+.panel{
+    border:1px solid var(--line);
+    background:linear-gradient(145deg, rgba(10,22,45,.78), rgba(0,240,255,.04));
+    border-radius:var(--radius);
+    padding:28px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 18px 60px rgba(0,0,0,.3);
+}
+
+.panel::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+
+.panel:hover{
+    border-color:rgba(0,240,255,.5);
+    box-shadow:var(--shadow);
+}
+
+.panel-label{
+    color:var(--cyan);
+    font-family:Consolas, monospace;
+    font-size:.78rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin-bottom:13px;
+}
+
+.big-lead{
+    font-size:clamp(1.25rem, 2.5vw, 1.8rem);
+    color:#fff;
+    line-height:1.45;
+    max-width:920px;
+}
+
+.philosophy-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:16px;
+    margin-top:34px;
+}
+
+.philosophy-card{
+    min-height:230px;
+    border:1px solid rgba(0,240,255,.16);
+    background:rgba(0,240,255,.045);
+    border-radius:20px;
+    padding:22px;
+    transition:.25s ease;
+    position:relative;
+    overflow:hidden;
+}
+
+.philosophy-card::after{
+    content:"";
+    position:absolute;
+    width:80px;
+    height:80px;
+    right:-25px;
+    bottom:-25px;
+    background:radial-gradient(circle, rgba(0,240,255,.25), transparent 70%);
+}
+
+.philosophy-card:hover{
+    transform:translateY(-8px);
+    border-color:var(--line);
+    background:rgba(0,240,255,.08);
+}
+
+.philosophy-card .number{
+    color:var(--cyan);
+    font-family:Consolas, monospace;
+    margin-bottom:18px;
+}
+
+.philosophy-card h3{
+    font-size:1.05rem;
+}
+
+.philosophy-card p{
+    font-size:.94rem;
+}
+
+.missions{
+    display:grid;
+    gap:28px;
+}
+
+.mission{
+    display:grid;
+    grid-template-columns:280px 1fr;
+    gap:26px;
+    border:1px solid var(--line);
+    background:rgba(2,6,23,.62);
+    border-radius:28px;
+    overflow:hidden;
+}
+
+.mission-side{
+    background:
+        linear-gradient(180deg, rgba(0,240,255,.13), rgba(139,92,246,.08)),
+        rgba(0,0,0,.25);
+    padding:28px;
+    border-right:1px solid rgba(0,240,255,.18);
+}
+
+.mission-side .code{
+    color:var(--cyan);
+    font-family:Consolas, monospace;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    font-size:.8rem;
+    margin-bottom:18px;
+}
+
+.mission-side h3{
+    color:#fff;
+    font-size:1.55rem;
+}
+
+.mission-side p{
+    color:var(--muted);
+    font-size:.92rem;
+}
+
+.mission-body{
+    padding:28px;
+}
+
+.tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:18px 0 22px;
+}
+
+.tab{
+    border:1px solid var(--line);
+    background:rgba(0,240,255,.05);
+    color:var(--muted);
+    border-radius:999px;
+    padding:8px 12px;
+    cursor:pointer;
+    transition:.2s ease;
+}
+
+.tab.active,
+.tab:hover{
+    color:#020617;
+    background:var(--cyan);
+}
+
+.tab-panel{
+    display:none;
+}
+
+.tab-panel.active{
+    display:block;
+    animation:fadeUp .35s ease;
+}
+
+@keyframes fadeUp{
+    from{opacity:0;transform:translateY(8px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+.clean-list{
+    display:grid;
+    gap:10px;
+    list-style:none;
+    padding:0;
+}
+
+.clean-list li{
+    color:var(--soft);
+    position:relative;
+    padding-left:23px;
+}
+
+.clean-list li::before{
+    content:"";
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 14px var(--cyan);
+    position:absolute;
+    left:0;
+    top:.65em;
+}
+
+.project-stack{
+    display:grid;
+    gap:38px;
+}
+
+.project{
+    display:grid;
+    grid-template-columns:.8fr 1.2fr;
+    gap:0;
+    border:1px solid var(--line);
+    border-radius:30px;
+    overflow:hidden;
+    background:rgba(2,6,23,.65);
+}
+
+.project-head{
+    padding:32px;
+    background:
+        radial-gradient(circle at 40% 20%, rgba(0,240,255,.18), transparent 35%),
+        linear-gradient(145deg, rgba(0,240,255,.08), rgba(139,92,246,.08));
+    border-right:1px solid rgba(0,240,255,.18);
+}
+
+.project-code{
+    color:var(--cyan);
+    font-family:Consolas, monospace;
+    font-size:.8rem;
+    letter-spacing:2px;
+    margin-bottom:20px;
+}
+
+.project-head h3{
+    font-size:2rem;
+    color:#fff;
+}
+
+.tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px;
+    margin-top:22px;
+}
+
+.tag{
+    border:1px solid rgba(0,240,255,.22);
+    background:rgba(0,240,255,.07);
+    padding:7px 10px;
+    border-radius:999px;
+    color:var(--cyan);
+    font-size:.78rem;
+}
+
+.project-body{
+    padding:32px;
+    display:grid;
+    gap:18px;
+}
+
+.case-row{
+    border-left:2px solid rgba(0,240,255,.45);
+    padding-left:18px;
+}
+
+.case-row h4{
+    color:#fff;
+    margin-bottom:6px;
+}
+
+.skill-dashboard{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:24px;
+}
+
+.skill-matrix{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:16px;
+}
+
+.skill-card{
+    border:1px solid rgba(0,240,255,.18);
+    background:rgba(0,240,255,.045);
+    border-radius:20px;
+    padding:22px;
+}
+
+.skill-card h3{
+    font-size:1.1rem;
+}
+
+.skill-card p{
+    font-size:.92rem;
+}
+
+.bars{
+    display:grid;
+    gap:18px;
+}
+
+.bar-label{
+    display:flex;
+    justify-content:space-between;
+    color:var(--soft);
+    margin-bottom:7px;
+    font-size:.9rem;
+}
+
+.bar{
+    height:10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.07);
+    overflow:hidden;
+    border:1px solid rgba(0,240,255,.12);
+}
+
+.bar span{
+    display:block;
+    height:100%;
+    width:0;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--cyan), var(--purple));
+    box-shadow:0 0 18px rgba(0,240,255,.4);
+    transition:width 1.1s ease;
+}
+
+.cert-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+    margin-top:28px;
+}
+
+.cert{
+    border:1px solid rgba(0,240,255,.18);
+    background:rgba(0,240,255,.045);
+    border-radius:22px;
+    padding:22px;
+    min-height:310px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:.25s ease;
+}
+
+.cert:hover{
+    transform:translateY(-7px);
+    border-color:rgba(0,240,255,.45);
+}
+
+.cert h3{
+    color:#fff;
+    font-size:1.15rem;
+}
+
+.cert .issuer{
+    color:var(--cyan);
+    font-size:.88rem;
+    margin-bottom:14px;
+}
+
+.cert ul{
+    margin-top:12px;
+    color:var(--soft);
+    padding-left:18px;
+}
+
+.cert a{
+    margin-top:18px;
+    color:var(--cyan);
+    font-weight:700;
+}
+
+.edu-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+}
+
+.contact-wrap{
+    display:grid;
+    grid-template-columns:1fr .9fr;
+    gap:24px;
+    align-items:stretch;
+}
+
+.contact-card{
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:30px;
+    background:
+        radial-gradient(circle at 80% 20%, rgba(0,240,255,.16), transparent 35%),
+        rgba(2,6,23,.72);
+}
+
+.contact-lines{
+    display:grid;
+    gap:13px;
+    margin:24px 0;
+}
+
+.contact-line{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    color:var(--soft);
+}
+
+.contact-icon{
+    width:34px;
+    height:34px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    background:rgba(0,240,255,.09);
+    border:1px solid rgba(0,240,255,.22);
+    color:var(--cyan);
+}
+
+.ref-note{
+    margin-top:18px;
+    padding:14px;
+    border-radius:16px;
+    border:1px solid rgba(245,158,11,.26);
+    background:rgba(245,158,11,.07);
+    color:#f8dca1;
+}
+
+footer{
+    padding:36px 0;
+    color:var(--muted);
+    border-top:1px solid rgba(0,240,255,.12);
+    text-align:center;
+}
+
+.reveal{
+    opacity:0;
+    transform:translateY(40px);
+    transition:opacity .8s ease, transform .8s ease;
+}
+
+.reveal.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+@media (max-width:980px){
+    .hero-grid,
+    .mission,
+    .project,
+    .skill-dashboard,
+    .contact-wrap,
+    .edu-grid{
+        grid-template-columns:1fr;
+    }
+
+    .hero-panel{
+        min-height:420px;
+    }
+
+    .philosophy-grid{
+        grid-template-columns:repeat(2, 1fr);
+    }
+
+    .cert-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .mission-side,
+    .project-head{
+        border-right:none;
+        border-bottom:1px solid rgba(0,240,255,.18);
+    }
+
+    .side-nav{
+        display:none;
+    }
+}
+
+@media (max-width:720px){
+    .top-links{
+        display:none;
+    }
+
+    h1{
+        letter-spacing:-2px;
+    }
+
+    section{
+        padding:82px 0;
+    }
+
+    .philosophy-grid,
+    .cert-grid,
+    .skill-matrix{
+        grid-template-columns:1fr;
+    }
+
+    .floating-chip{
+        display:none;
+    }
+
+    .hud{
+        width:310px;
+    }
+
+    .core{
+        width:165px;
+        height:165px;
+    }
+
+    .cursor{
+        display:none;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<img id="bgImg" class="bgImg">
-<canvas id="c"></canvas>
+<canvas id="networkCanvas"></canvas>
 
-<div class="title">Website Under Construction</div>
-<div id="logs" class="logs"></div>
+<div class="progress" id="progress"></div>
+<div class="cursor" id="cursor"></div>
+
+<div class="boot" id="boot">
+    <div class="boot-box">
+        <div class="boot-title">Enterprise Systems Interface</div>
+        <div class="boot-lines">
+            <div class="boot-line"><span>[OK]</span> Initializing Rahul Chand profile...</div>
+            <div class="boot-line"><span>[OK]</span> Loading identity, infrastructure, operations modules...</div>
+            <div class="boot-line"><span>[OK]</span> Validating enterprise support experience...</div>
+            <div class="boot-line"><span>[OK]</span> Mission data online...</div>
+            <div class="boot-line"><span>[READY]</span> Portfolio interface active.</div>
+        </div>
+    </div>
+</div>
+
+<header class="topbar">
+    <a class="brand" href="#home">
+        <span class="brand-dot"></span>
+        <span>Rahul Chand</span>
+    </a>
+
+    <nav class="top-links">
+        <a href="#about">Approach</a>
+        <a href="#experience">Missions</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#certs">Certifications</a>
+        <a href="#contact">Contact</a>
+    </nav>
+</header>
+
+<nav class="side-nav" aria-label="Section navigation">
+    <a href="#home"><span>Home</span></a>
+    <a href="#about"><span>Approach</span></a>
+    <a href="#experience"><span>Missions</span></a>
+    <a href="#projects"><span>Projects</span></a>
+    <a href="#skills"><span>Skills</span></a>
+    <a href="#certs"><span>Certifications</span></a>
+    <a href="#contact"><span>Contact</span></a>
+</nav>
+
+<main>
+
+<section class="hero" id="home">
+    <div class="container hero-grid">
+        <div class="hero-copy-wrap reveal">
+            <div class="status-pill"><span></span> Identity Verified</div>
+
+            <h1 class="hero-title">
+                <span class="thin">Rahul</span>
+                <span class="solid">Chand</span>
+            </h1>
+
+            <div class="type-line" id="typeLine"></div>
+
+            <p class="hero-copy">
+                I work in enterprise IT environments where reliability, security, and performance matter.
+                My focus is on supporting, understanding, and improving systems that businesses depend on every day.
+                I do not just resolve issues. I investigate why they happen and look for ways to prevent them from coming back.
+            </p>
+
+            <div class="hero-actions">
+                rchandac99@gmail.comContact Me</a>
+                <a class="btn magnetic" href="#projects">View Projects</a>
+                <a class="btn magnetic" href="https://www.linkedin.com/in/rahul-chand-8a094a212/" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
+        </div>
+
+        <div class="hero-panel reveal">
+            <div class="hud">
+                <div class="hud-ring"></div>
+                <div class="hud-ring"></div>
+                <div class="hud-ring"></div>
+
+                <div class="core">
+                    <div class="core-inner">
+                        <strong>4+</strong>
+                        <span>Years Experience</span>
+                    </div>
+                </div>
+
+                <div class="floating-chip chip1">
+                    <strong>Azure</strong>
+                    <span>Identity & Access</span>
+                </div>
+
+                <div class="floating-chip chip2">
+                    <strong>ITIL</strong>
+                    <span>Service Operations</span>
+                </div>
+
+                <div class="floating-chip chip3">
+                    <strong>Power Platform</strong>
+                    <span>Internal Systems</span>
+                </div>
+
+                <div class="floating-chip chip4">
+                    <strong>KPMG</strong>
+                    <span>Enterprise Support</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="about">
+    <div class="container">
+        <div class="section-kicker reveal">Operating Philosophy</div>
+        <h2 class="reveal">I do not treat IT issues as isolated events.</h2>
+
+        <div class="panel reveal">
+            <div class="panel-label">Professional Approach</div>
+            <p class="big-lead">
+                Most problems exist because something upstream or downstream is not aligned.
+                Identity, access, infrastructure, networks, applications, and the user experience all connect.
+                I work by understanding those connections first, then resolving the issue in a way that holds up over time.
+            </p>
+        </div>
+
+        <div class="philosophy-grid">
+            <div class="philosophy-card reveal">
+                <div class="number">01</div>
+                <h3>Diagnose Before Acting</h3>
+                <p>I avoid guesswork. I first understand what changed, what failed, and what dependency is involved.</p>
+            </div>
+
+            <div class="philosophy-card reveal">
+                <div class="number">02</div>
+                <h3>Root Cause Over Quick Fixes</h3>
+                <p>Getting a user working again matters, but preventing repeat issues matters even more.</p>
+            </div>
+
+            <div class="philosophy-card reveal">
+                <div class="number">03</div>
+                <h3>Security With Usability</h3>
+                <p>I work around access and authentication issues without weakening security controls.</p>
+            </div>
+
+            <div class="philosophy-card reveal">
+                <div class="number">04</div>
+                <h3>Systems Thinking</h3>
+                <p>I look at the full environment, including identity, infrastructure, networking, and business process.</p>
+            </div>
+
+            <div class="philosophy-card reveal">
+                <div class="number">05</div>
+                <h3>Improve and Standardize</h3>
+                <p>Where possible, I document, automate, and improve processes so the environment becomes easier to support.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="experience">
+    <div class="container">
+        <div class="section-kicker reveal">Career Missions</div>
+        <h2 class="reveal">Enterprise support, infrastructure ownership, and service operations.</h2>
+
+        <div class="missions">
+
+            <article class="mission reveal" data-mission="1">
+                <aside class="mission-side">
+                    <div class="code">Mission 01</div>
+                    <h3>KPMG Australia</h3>
+                    <p>Technology Services Analyst</p>
+                    <p>March 2025 to Present</p>
+                    <br />
+                    <p>Supporting Australian business units in a structured enterprise technology environment.</p>
+                </aside>
+
+                <div class="mission-body">
+                    <h3>Enterprise Technology Services</h3>
+                    <p>
+                        My current work is focused on supporting business-critical enterprise environments where uptime,
+                        secure access, and consistent service delivery are essential.
+                    </p>
+
+                    <div class="tabs">
+                        <button class="tab active" data-target="m1-core">Core Work</button>
+                        <button class="tab" data-target="m1-complexity">Complexity</button>
+                        <button class="tab" data-target="m1-impact">Value Delivered</button>
+                    </div>
+
+                    <div class="tab-panel active" id="m1-core">
+                        <ul class="clean-list">
+                            <li>Manage user lifecycle processes across Azure Entra ID and Active Directory.</li>
+                            <li>Troubleshoot MFA, authentication, and conditional access issues.</li>
+                            <li>Support Windows systems, application access, infrastructure updates, and rollout activities.</li>
+                            <li>Assist with escalations where technical depth and business continuity are required.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="m1-complexity">
+                        <ul class="clean-list">
+                            <li>Authentication issues often involve policy, device, user state, and application dependencies.</li>
+                            <li>Access failures require careful investigation so security controls are not bypassed unnecessarily.</li>
+                            <li>Escalated incidents require structured analysis, clear communication, and accurate documentation.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="m1-impact">
+                        <ul class="clean-list">
+                            <li>Improved resolution quality by focusing on underlying causes, not just visible symptoms.</li>
+                            <li>Supported secure access while maintaining user productivity.</li>
+                            <li>Produced RCA documentation and recommended long-term remediation actions.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <article class="mission reveal" data-mission="2">
+                <aside class="mission-side">
+                    <div class="code">Mission 02</div>
+                    <h3>Challenge Group of Companies</h3>
+                    <p>Head of Helpdesk / IT Support Specialist</p>
+                    <p>May 2024 to February 2025</p>
+                    <br />
+                    <p>Led support operations while remaining hands-on across infrastructure, networking, and security systems.</p>
+                </aside>
+
+                <div class="mission-body">
+                    <h3>Helpdesk Leadership and Infrastructure Control</h3>
+                    <p>
+                        This role expanded my responsibility from solving technical issues to improving how IT support operated as a function.
+                    </p>
+
+                    <div class="tabs">
+                        <button class="tab active" data-target="m2-core">Leadership</button>
+                        <button class="tab" data-target="m2-tech">Technical Work</button>
+                        <button class="tab" data-target="m2-impact">Value Delivered</button>
+                    </div>
+
+                    <div class="tab-panel active" id="m2-core">
+                        <ul class="clean-list">
+                            <li>Led helpdesk operations, escalations, resource allocation, and team performance monitoring.</li>
+                            <li>Introduced better support structure, task ownership, and issue prioritization.</li>
+                            <li>Provided IT training to improve staff capability and reduce recurring support requests.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="m2-tech">
+                        <ul class="clean-list">
+                            <li>Managed servers, NAS devices, backups, and cybersecurity measures.</li>
+                            <li>Configured and maintained surveillance systems to support physical security.</li>
+                            <li>Implemented structured cabling and resolved LAN/WAN issues across multiple locations.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-panel" id="m2-impact">
+                        <ul class="clean-list">
+                            <li>Improved network reliability through structured cabling and infrastructure maintenance.</li>
+                            <li>Reduced downtime by addressing recurring LAN/WAN and system issues.</li>
+                            <li>Improved helpdesk efficiency by strengthening workflows and escalation handling.</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+<section id="projects">
+    <div class="container">
+        <div class="section-kicker reveal">Project Case Studies</div>
+        <h2 class="reveal">I build internal systems that solve real operational problems.</h2>
+
+        <div class="project-stack">
+
+            <article class="project reveal">
+                <div class="project-head">
+                    <div class="project-code">Project 01</div>
+                    <h3>Custom Helpdesk System</h3>
+                    <p>Designed and developed a complete internal ticketing system using Microsoft Power Platform.</p>
+                    <div class="tags">
+                        <span class="tag">Power Apps</span>
+                        <span class="tag">Power Automate</span>
+                        <span class="tag">Dataverse</span>
+                        <span class="tag">SLA Tracking</span>
+                    </div>
+                </div>
+
+                <div class="project-body">
+                    <div class="case-row">
+                        <h4>Problem</h4>
+                        <p>Manual support tracking created inconsistent ticket handling, limited visibility, and unnecessary administrative workload.</p>
+                    </div>
+
+                    <div class="case-row">
+                        <h4>Build</h4>
+                        <p>I created a centralized ticketing platform with automated routing, SLA tracking, escalation workflows, and reporting dashboards.</p>
+                    </div>
+
+                    <div class="case-row">
+                        <h4>Outcome</h4>
+                        <p>The system improved support structure, reduced manual effort, increased accountability, and gave management clearer visibility into performance.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="project reveal">
+                <div class="project-head">
+                    <div class="project-code">Project 02</div>
+                    <h3>IT Inventory Management Platform</h3>
+                    <p>Built an enterprise IT asset tracking solution with mobile app support for real-time inventory updates.</p>
+                    <div class="tags">
+                        <span class="tag">Asset Management</span>
+                        <span class="tag">Mobile App</span>
+                        <span class="tag">Database Sync</span>
+                        <span class="tag">Lifecycle Tracking</span>
+                    </div>
+                </div>
+
+                <div class="project-body">
+                    <div class="case-row">
+                        <h4>Problem</h4>
+                        <p>Asset tracking was manual, inconsistent, and difficult to maintain across devices and locations.</p>
+                    </div>
+
+                    <div class="case-row">
+                        <h4>Build</h4>
+                        <p>I developed a system that allowed real-time asset updates, mobile scanning, and synchronization with a centralized database.</p>
+                    </div>
+
+                    <div class="case-row">
+                        <h4>Outcome</h4>
+                        <p>The platform improved asset visibility, reduced tracking errors, and made inventory updates faster and more reliable.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article class="project reveal">
+                <div class="project-head">
+                    <div class="project-code">Project 03</div>
+                    <h3>Secure Payroll Server Deployment</h3>
+                    <p>Deployed secured payroll infrastructure with controlled remote access and strict data protection measures.</p>
+                    <div class="tags">
+                        <span class="tag">Server Deployment</span>
+                        <span class="tag">VPN Access</span>
+                        <span class="tag">RBAC</span>
+                        <span class="tag">Firewall Rules</span>
+                        <span class="tag">Monitoring</span>
+                    </div>
+                </div>
+
+                <div class="project-body">
+                    <div class="case-row">
+                        <h4>Problem</h4>
+                        <p>Payroll systems required secure access for authorized users while protecting sensitive employee and financial data.</p>
+                    </div>
+
+                    <div class="case-row">
+                        <h4>Build</h4>
+                        <p>I implemented role-based access, VPN restrictions, encryption policies, firewall rules, and monitoring controls.</p>
+                    </div>
+
+                    <div class="case-row">
+                        <h4>Outcome</h4>
+                        <p>The solution enabled secure remote access while maintaining strong protection around sensitive payroll information.</p>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+<section id="skills">
+    <div class="container">
+        <div class="section-kicker reveal">Technical Capability Matrix</div>
+        <h2 class="reveal">I work across multiple layers of IT, not just one area.</h2>
+
+        <div class="skill-dashboard">
+            <div class="skill-matrix reveal">
+                <div class="skill-card">
+                    <h3>Cloud & Identity</h3>
+                    <p>Azure Entra ID, Active Directory, MFA, Conditional Access, user lifecycle management.</p>
+                </div>
+
+                <div class="skill-card">
+                    <h3>Infrastructure</h3>
+                    <p>Server administration, NAS devices, backups, patching, application rollout support.</p>
+                </div>
+
+                <div class="skill-card">
+                    <h3>Networking</h3>
+                    <p>LAN, WAN, WiFi troubleshooting, structured cabling, network reliability improvements.</p>
+                </div>
+
+                <div class="skill-card">
+                    <h3>IT Operations</h3>
+                    <p>ITIL processes, incident management, problem management, escalations, RCA documentation.</p>
+                </div>
+
+                <div class="skill-card">
+                    <h3>Development & Automation</h3>
+                    <p>Power Apps, Power Automate, Dataverse, SQL database management, internal tool development.</p>
+                </div>
+
+                <div class="skill-card">
+                    <h3>Documentation</h3>
+                    <p>Root cause analysis, support procedures, remediation notes, technical documentation.</p>
+                </div>
+            </div>
+
+            <div class="panel reveal">
+                <div class="panel-label">Operational Strength</div>
+                <div class="bars">
+                    <div>
+                        <div class="bar-label"><span>Enterprise Support</span><span>92%</span></div>
+                        <div class="bar"><span data-width="92%"></span></div>
+                    </div>
+
+                    <div>
+                        <div class="bar-label"><span>Identity & Access</span><span>88%</span></div>
+                        <div class="bar"><span data-width="88%"></span></div>
+                    </div>
+
+                    <div>
+                        <div class="bar-label"><span>Infrastructure</span><span>84%</span></div>
+                        <div class="bar"><span data-width="84%"></span></div>
+                    </div>
+
+                    <div>
+                        <div class="bar-label"><span>IT Operations</span><span>90%</span></div>
+                        <div class="bar"><span data-width="90%"></span></div>
+                    </div>
+
+                    <div>
+                        <div class="bar-label"><span>Automation Mindset</span><span>86%</span></div>
+                        <div class="bar"><span data-width="86%"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="certs">
+    <div class="container">
+        <div class="section-kicker reveal">Certification Intelligence Layer</div>
+        <h2 class="reveal">Certifications that strengthen how I work.</h2>
+
+        <div class="cert-grid">
+
+            <article class="cert reveal">
+                <div>
+                    <h3>Jira Fundamentals</h3>
+                    <div class="issuer">Pluralsight</div>
+                    <p>Strengthened understanding of Jira as a platform for issue tracking, dashboards, project setup, reporting, and service desk workflows.</p>
+                    <ul>
+                        <li>Workflow structure</li>
+                        <li>Dashboards and reporting</li>
+                        <li>Service desk capability</li>
+                    </ul>
+                </div>
+                https://app.pluralsight.com/achievements/share/5715bc4f-5157-46a5-9980-2fb69542b314View Badge</a>
+            </article>
+
+            <article class="cert reveal">
+                <div>
+                    <h3>Jira for Project Management</h3>
+                    <div class="issuer">Pluralsight</div>
+                    <p>Focused on planning, organizing, and managing work through Jira, including issue tracking, workflows, collaboration, and automation.</p>
+                    <ul>
+                        <li>Agile project tracking</li>
+                        <li>Workflow management</li>
+                        <li>Team visibility</li>
+                    </ul>
+                </div>
+                https://app.pluralsight.com/achievements/share/61ec88ed-8235-40b9-ba42-e0c6441d0012View Badge</a>
+            </article>
+
+            <article class="cert reveal">
+                <div>
+                    <h3>AZ-500T00: Secure Cloud Resources</h3>
+                    <div class="issuer">Microsoft / Koenig Solutions</div>
+                    <p>Covered security controls, identity and access, data protection, and securing Microsoft Azure workloads.</p>
+                    <ul>
+                        <li>Azure security controls</li>
+                        <li>Identity protection</li>
+                        <li>Cloud workload security</li>
+                    </ul>
+                </div>
+                https://www.koenig-solutions.com/certificate/certificate-authenticator/CNO-461035View Certificate</a>
+            </article>
+
+            <article class="cert reveal">
+                <div>
+                    <h3>Software Development</h3>
+                    <div class="issuer">Pluralsight</div>
+                    <p>Reinforced application logic, structured problem solving, and development concepts useful for automation and internal tool building.</p>
+                    <ul>
+                        <li>Programming fundamentals</li>
+                        <li>Application logic</li>
+                        <li>Structured development</li>
+                    </ul>
+                </div>
+                https://app.pluralsight.com/achievements/share/302a1904-58e6-4ac7-8eff-b892c91e1d11View Badge</a>
+            </article>
+
+            <article class="cert reveal">
+                <div>
+                    <h3>Artificial Intelligence Essentials: Responsible AI</h3>
+                    <div class="issuer">Pluralsight</div>
+                    <p>Built awareness of responsible AI concepts, ethical use, automation potential, and how modern technology environments are evolving.</p>
+                    <ul>
+                        <li>Responsible AI principles</li>
+                        <li>Automation awareness</li>
+                        <li>Digital transformation</li>
+                    </ul>
+                </div>
+                <span class="muted">Badge available via Pluralsight</span>
+            </article>
+
+            <article class="cert reveal">
+                <div>
+                    <h3>Digital & Data Foundations</h3>
+                    <div class="issuer">KPMG / Pluralsight</div>
+                    <p>Strengthened understanding of digital, data, AI, and automation foundations within enterprise environments.</p>
+                    <ul>
+                        <li>Digital foundations</li>
+                        <li>Data awareness</li>
+                        <li>Automation concepts</li>
+                    </ul>
+                </div>
+                <span class="muted">Enterprise learning credential</span>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+<section id="education">
+    <div class="container">
+        <div class="section-kicker reveal">Education</div>
+        <h2 class="reveal">Academic foundation in software engineering and IT.</h2>
+
+        <div class="edu-grid">
+            <div class="panel reveal">
+                <div class="panel-label">University</div>
+                <h3>Bachelor of Information Technology in Software Engineering</h3>
+                <p>University of Fiji</p>
+                <p>2018 to 2022</p>
+                <br />
+                <p>
+                    Built a foundation in software development, systems thinking, database management,
+                    and technical problem solving.
+                </p>
+            </div>
+
+            <div class="panel reveal">
+                <div class="panel-label">Secondary Education</div>
+                <h3>Tilak High School</h3>
+                <p>Fiji Year 13 Certificate, 2017</p>
+                <p>Fiji Year 12 Certificate, 2016</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="contact">
+    <div class="container">
+        <div class="section-kicker reveal">Contact Conversion</div>
+        <h2 class="reveal">If you need someone who can handle real systems, let’s talk.</h2>
+
+        <div class="contact-wrap">
+            <div class="contact-card reveal">
+                <h3>What I am best suited for</h3>
+                <p>
+                    I am interested in roles where systems are complex, reliability matters,
+                    and there is room to improve how technology operations function.
+                </p>
+
+                <div class="tags">
+                    <span class="tag">Cloud Support Engineer</span>
+                    <span class="tag">Identity & Access Management</span>
+                    <span class="tag">Systems Administration</span>
+                    <span class="tag">IT Operations</span>
+                    <span class="tag">Service Delivery</span>
+                </div>
+
+                <div class="ref-note">
+                    Referees are available on request.
+                </div>
+            </div>
+
+            <div class="contact-card reveal">
+                <h3>Contact Node</h3>
+
+                <div class="contact-lines">
+                    rchandac99@gmail.com
+                        <span class="contact-icon">@</span>
+                        <span>rchandac99@gmail.com</span>
+                    </a>
+
+                    tel:+6792096420
+                        <span class="contact-icon">☎</span>
+                        <span>+679 2096420</span>
+                    </a>
+
+                    tel:+6797650430
+                        <span class="contact-icon">☎</span>
+                        <span>+679 7650430</span>
+                    </a>
+
+                    <div class="contact-line">
+                        <span class="contact-icon">⌖</span>
+                        <span>Lautoka, Fiji</span>
+                    </div>
+
+                    <a class="contact-line" href="https://www.linkedin.com/in/rahul-chand-8a094a212/" target="_blank" rel="noopener">
+                        <span class="contact-icon">in</span>
+                        <span>LinkedIn Profile</span>
+                    </a>
+                </div>
+
+                rchandac99@gmail.comSend Message</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <div class="container">
+        Rahul Chand // Enterprise IT, Identity, Infrastructure, and Operations
+    </div>
+</footer>
 
 <script>
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
-const logsDiv = document.getElementById("logs");
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("boot").classList.add("hide");
+    }, 1600);
+});
 
-function resize(){
-    canvas.width = innerWidth;
-    canvas.height = innerHeight;
-}
-resize();
-addEventListener("resize", resize);
+const typeLine = document.getElementById("typeLine");
+const phrases = [
+    "Enterprise IT • Identity • Infrastructure • Operations",
+    "Azure Entra ID • Active Directory • ITIL • RCA",
+    "I fix root causes, not just symptoms."
+];
 
-/* ---------------- IMAGE (API STYLE) ---------------- */
+let phraseIndex = 0;
+let charIndex = 0;
+let deleting = false;
 
-const img = document.getElementById("bgImg");
+function typeWriter(){
+    const current = phrases[phraseIndex];
 
-function loadImage(){
-    img.src = "https://source.unsplash.com/1600x900/?technology,ai,cyber" + Date.now();
-}
-loadImage();
-setInterval(loadImage,15000);
-
-/* ---------------- MATRIX ---------------- */
-
-const chars="01ABCDEF";
-const size=16;
-let drops=[];
-
-function initMatrix(){
-    let cols=Math.floor(canvas.width/size);
-    drops=Array(cols).fill(0).map(()=>Math.random()*canvas.height);
-}
-initMatrix();
-
-function drawMatrix(){
-    ctx.font=size+"px monospace";
-
-    for(let i=0;i<drops.length;i++){
-        let x=i*size;
-        let y=drops[i];
-        let char=chars[Math.floor(Math.random()*chars.length)];
-
-        ctx.fillStyle="rgba(0,255,200,0.25)";
-        ctx.fillText(char,x,y);
-
-        ctx.fillStyle="rgba(0,255,200,0.06)";
-        ctx.fillText(char,x,y-10);
-
-        drops[i]+=size*0.8;
-
-        if(drops[i]>canvas.height){
-            drops[i]=Math.random()*-100;
+    if(!deleting){
+        typeLine.textContent = current.slice(0, charIndex++);
+        if(charIndex > current.length + 12){
+            deleting = true;
         }
+    }else{
+        typeLine.textContent = current.slice(0, charIndex--);
+        if(charIndex <= 0){
+            deleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+        }
+    }
+
+    const speed = deleting ? 35 : 58;
+    setTimeout(typeWriter, speed);
+}
+
+typeWriter();
+
+const canvas = document.getElementById("networkCanvas");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+
+function createParticles(){
+    particles = [];
+    const count = Math.min(120, Math.floor(window.innerWidth / 12));
+
+    for(let i = 0; i < count; i++){
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - .5) * .35,
+            vy: (Math.random() - .5) * .35,
+            r: Math.random() * 1.8 + .6
+        });
     }
 }
 
-/* ---------------- COMMAND LINES ---------------- */
+createParticles();
 
-let lines=[];
-for(let i=0;i<30;i++){
-    lines.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        len:60+Math.random()*140,
-        speed:0.4+Math.random()*0.6
-    });
-}
+function animateParticles(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-function drawLines(){
-    ctx.strokeStyle="rgba(0,255,255,0.1)";
-    lines.forEach(l=>{
+    for(let i = 0; i < particles.length; i++){
+        const p = particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
         ctx.beginPath();
-        ctx.moveTo(l.x,l.y);
-        ctx.lineTo(l.x+l.len,l.y);
-        ctx.stroke();
-
-        l.x+=l.speed;
-
-        if(l.x>canvas.width){
-            l.x=-l.len;
-            l.y=Math.random()*canvas.height;
-        }
-    });
-}
-
-/* ---------------- INTERACTION ---------------- */
-
-let mouse={x:canvas.width/2,y:canvas.height/2};
-
-addEventListener("mousemove",e=>{
-    mouse.x=e.clientX;
-    mouse.y=e.clientY;
-});
-
-addEventListener("click",()=>{
-    nodes.forEach(n=>{
-        let dx=mouse.x-n.x;
-        let dy=mouse.y-n.y;
-        if(Math.hypot(dx,dy)<120){
-            n.active=1;
-        }
-    });
-});
-
-/* ---------------- NODES ---------------- */
-
-let nodes=[];
-for(let i=0;i<130;i++){
-    nodes.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        vx:(Math.random()-0.5)*0.3,
-        vy:(Math.random()-0.5)*0.3,
-        active:0
-    });
-}
-
-function updateNodes(){
-    nodes.forEach(n=>{
-        n.x+=n.vx;
-        n.y+=n.vy;
-
-        if(n.x<0||n.x>canvas.width)n.vx*=-1;
-        if(n.y<0||n.y>canvas.height)n.vy*=-1;
-
-        let dx=mouse.x-n.x;
-        let dy=mouse.y-n.y;
-        let d=Math.hypot(dx,dy);
-
-        if(d<140){
-            n.x+=dx*0.01;
-            n.y+=dy*0.01;
-        }
-
-        if(n.active>0)n.active-=0.01;
-    });
-}
-
-function drawNodes(){
-    nodes.forEach(n=>{
-        ctx.beginPath();
-        ctx.arc(n.x,n.y,n.active?3:1.5,0,Math.PI*2);
-
-        ctx.fillStyle=n.active
-            ? `rgba(0,255,255,${n.active})`
-            : "rgba(255,255,255,0.3)";
-
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,240,255,.7)";
         ctx.fill();
-    });
-}
 
-/* connections */
-function drawConnections(){
-    for(let i=0;i<nodes.length;i++){
-        for(let j=i+1;j<nodes.length;j++){
-            let dx=nodes[i].x-nodes[j].x;
-            let dy=nodes[i].y-nodes[j].y;
-            let d=Math.hypot(dx,dy);
+        for(let j = i + 1; j < particles.length; j++){
+            const q = particles[j];
+            const dx = p.x - q.x;
+            const dy = p.y - q.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if(d<100){
-                let alpha=1-d/100;
-                let strength=Math.max(nodes[i].active,nodes[j].active);
-
-                ctx.strokeStyle=strength>0
-                    ? `rgba(0,255,255,${alpha*strength})`
-                    : `rgba(0,255,255,${alpha*0.1})`;
-
+            if(dist < 120){
                 ctx.beginPath();
-                ctx.moveTo(nodes[i].x,nodes[i].y);
-                ctx.lineTo(nodes[j].x,nodes[j].y);
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(q.x, q.y);
+                ctx.strokeStyle = `rgba(0,240,255,${(1 - dist / 120) * .16})`;
+                ctx.lineWidth = 1;
                 ctx.stroke();
             }
         }
     }
+
+    requestAnimationFrame(animateParticles);
 }
 
-/* ---------------- LOGS ---------------- */
+animateParticles();
 
-let logs=[];
-setInterval(()=>{
-    logs.unshift(
-        "NODE_"+Math.floor(Math.random()*999)+
-        " HASH_"+Math.random().toString(16).slice(2,8)
-    );
-    if(logs.length>20) logs.pop();
-},200);
+window.addEventListener("resize", () => {
+    resizeCanvas();
+    createParticles();
+});
 
-function renderLogs(){
-    logsDiv.innerHTML = logs.join("<br>");
+const progress = document.getElementById("progress");
+
+function updateProgress(){
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const percent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progress.style.width = percent + "%";
 }
 
-/* ---------------- LOOP ---------------- */
+window.addEventListener("scroll", updateProgress);
+updateProgress();
 
-function animate(){
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting){
+            entry.target.classList.add("show");
+        }
+    });
+},{threshold:.13});
 
-    ctx.fillStyle="rgba(0,0,0,0.12)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
 
-    drawMatrix();
-    drawLines();
+const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting){
+            entry.target.querySelectorAll(".bar span").forEach(bar => {
+                bar.style.width = bar.dataset.width;
+            });
+        }
+    });
+},{threshold:.35});
 
-    updateNodes();
-    drawNodes();
-    drawConnections();
+document.querySelectorAll(".bars").forEach(el => barObserver.observe(el));
 
-    renderLogs();
+document.querySelectorAll(".mission").forEach(mission => {
+    const tabs = mission.querySelectorAll(".tab");
 
-    requestAnimationFrame(animate);
-}
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            const target = tab.dataset.target;
 
-animate();
+            mission.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+            mission.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+
+            tab.classList.add("active");
+            mission.querySelector("#" + target).classList.add("active");
+        });
+    });
+});
+
+const cursor = document.getElementById("cursor");
+
+document.addEventListener("mousemove", (e) => {
+    cursor.style.left = e.clientX + "px";
+    cursor.style.top = e.clientY + "px";
+});
+
+document.querySelectorAll("a, button, .panel, .project, .cert, .philosophy-card").forEach(el => {
+    el.addEventListener("mouseenter", () => cursor.classList.add("grow"));
+    el.addEventListener("mouseleave", () => cursor.classList.remove("grow"));
+});
+
+document.querySelectorAll(".magnetic").forEach(btn => {
+    btn.addEventListener("mousemove", (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * .12}px, ${y * .18}px)`;
+    });
+
+    btn.addEventListener("mouseleave", () => {
+        btn.style.transform = "translate(0,0)";
+    });
+});
+
+const sections = document.querySelectorAll("section[id]");
+const navDots = document.querySelectorAll(".side-nav a");
+
+const activeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting){
+            const id = entry.target.getAttribute("id");
+
+            navDots.forEach(dot => {
+                dot.classList.toggle("active", dot.getAttribute("href") === "#" + id);
+            });
+        }
+    });
+},{threshold:.45});
+
+sections.forEach(section => activeObserver.observe(section));
 </script>
 
 </body>
